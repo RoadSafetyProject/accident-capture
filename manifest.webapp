@@ -1,7 +1,7 @@
 {
     "version": "0.1",
-    "name": "dhis2 app seed",
-    "description": "DHIS 2 App Seed",
+    "name": "Accident Capture",
+    "description": "Accident Capture",
     "launch_path": "index.html",
     "icons": {
         "16": "icon.png",
@@ -9,7 +9,7 @@
         "128": "icon.png"
     },
     "developer": {
-        "name": "Vincent P. Minde",
+        "name": "VJospeh Chingalo",
         "url": ""
     },
     "default_locale": "en",
