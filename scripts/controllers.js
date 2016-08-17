@@ -151,10 +151,10 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
         };
     })
     .controller('EditController', function (NgTableParams,iRoadModal, $scope,$uibModalInstance,program,event,toaster) {
-        iRoadModal.getRelations(event).then(function(newEvent){
+        iRoadModal.initiateEvent(event,program).then(function(newEvent){
             $scope.event = newEvent;
             $scope.loading = false;
-        });
+        })
         $scope.program = program;
         $scope.getDataElementIndex = function(dataElement){
             var index = "";
