@@ -1,15 +1,18 @@
 <div class="modal-header">
-    <h3 class="modal-title">I'm a modal!</h3>
+    <h3 class="modal-title">{{program.name}}</h3>
 </div>
 <div class="modal-body">
-    <table ng-if="!loading" class="table">
-        <tr ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
-            <td>{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
-            <td>
-                <element-input ng-program-stage-data-element="programStageDataElement" ng-model="event.dataValues[getDataElementIndex(programStageDataElement.dataElement)]"></element-input>
-            </td>
-        </tr>
-    </table>
+    <form>
+        <table ng-if="!loading" class="table">
+            <tr ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
+                <td>{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
+                <td>
+                    <element-input ng-program-stage-data-element="programStageDataElement"
+                                   ng-model="event.dataValues[getDataElementIndex(programStageDataElement.dataElement)]"></element-input>
+                </td>
+            </tr>
+        </table>
+    </form>
     <div ng-if="loading" class="loader"></div>
 </div>
 <div class="modal-footer">
