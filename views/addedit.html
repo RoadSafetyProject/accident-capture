@@ -1,8 +1,8 @@
 <div class="modal-header">
-    <h3 class="modal-title">{{program.displayName}}</h3>
+    <h3 class="modal-title">{{program.name}}</h3>
 </div>
+<form ng-submit="save()">
 <div class="modal-body">
-    <form>
         <table ng-if="!loading" class="table">
             <tr ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
                 <td>{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
@@ -12,10 +12,10 @@
                 </td>
             </tr>
         </table>
-    </form>
     <div ng-if="loading" class="loader"></div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn btn-primary" type="submit" >Save</button>
     <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
 </div>
+</form>

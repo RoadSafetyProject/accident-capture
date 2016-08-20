@@ -29,19 +29,81 @@
     </a>
 </script>
 <div ng-if="!relation">
-    <div ng-if="(ngProgramStageDataElement.dataElement.valueType == 'TEXT' || ngProgramStageDataElement.dataElement.valueType == 'NUMBER') && !ngProgramStageDataElement.dataElement.optionSetValue"
+    <div ng-if="(ngProgramStageDataElement.dataElement.valueType == 'LONG_TEXT') && !ngProgramStageDataElement.dataElement.optionSetValue"
          class="form-group">
-        <input type="text" class="form-control" ng-model="ngModel.value">
+        <textarea type="text" class="form-control" ng-model="ngModel.value"
+                  ng-required="ngProgramStageDataElement.compulsory"></textarea>
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'TEXT' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="text" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'NUMBER' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="number" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'INTEGER' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="number" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'INTEGER_POSITIVE' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="number" class="form-control" ng-model="ngModel.value" min="1"
+               ng-required="ngProgramStageDataElement.compulsory">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'INTEGER_NEGATIVE' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="number" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory" max="-1">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'INTEGER_ZERO_OR_POSITIVE' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="number" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory" min="0">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'UNIT_INTERVAL' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="text" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'PERCENTAGE' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="number" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">%
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'COORDINATE' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="text" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'BOOLEAN' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <select class="form-control" ng-required="ngProgramStageDataElement.compulsory" ng-model="ngModel.value">
+            <option value="">Select {{ngProgramStageDataElement.dataElement.name}}</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+    </div>
+    <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'TRUE_ONLY' && !ngProgramStageDataElement.dataElement.optionSetValue"
+         class="form-group">
+        <input type="checkbox" class="form-control" ng-model="ngModel.value"
+               ng-required="ngProgramStageDataElement.compulsory">
     </div>
     <div ng-if="ngProgramStageDataElement.dataElement.optionSetValue" class="form-group">
-        <select class="form-control">
-            <option ng-repeat="option in ngProgramStageDataElement.dataElement.optionSet.options">{{option.name}}
+        <select class="form-control" ng-required="ngProgramStageDataElement.compulsory" ng-model="ngModel.value">
+            <option value="">Select {{ngProgramStageDataElement.dataElement.name}}</option>
+            <option ng-repeat="option in ngProgramStageDataElement.dataElement.optionSet.options"
+                    value="{{option.name}}">{{option.name}}
             </option>
         </select>
     </div>
     <div ng-if="ngProgramStageDataElement.dataElement.valueType == 'DATE'" class="input-group">
-        <input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="ngModel.value"
-               is-open="popup1.opened" datepicker-options="dateOptions" ng-required="true" close-text="Close"
+        <input type="text" class="form-control" uib-datepicker-popup="yyyy-MM-dd" ng-model="ngModel.value"
+               is-open="popup1.opened" datepicker-options="dateOptions"
+               ng-required="ngProgramStageDataElement.compulsory" close-text="Close"
                alt-input-formats="altInputFormats"/>
           <span class="input-group-btn">
             <button type="button" class="btn btn-default" ng-click="open1()"><i
@@ -51,32 +113,30 @@
 </div>
 <div ng-if="relation">
 
-    <div class="input-group">
+    <div class="input-group col-sm-12">
         <style>
-            .ui-select-focusser.ui-select-offscreen.ng-scope{
-                display:none;
+            .ui-select-focusser.ui-select-offscreen.ng-scope {
+                display: none;
             }
         </style>
-        <ui-select ng-model="ngModel.value" theme="selectize" ng-disabled="false" title="Choose a country">
-            <ui-select-match placeholder="Select...">{{$select.selected | extrapolateDataValue:relation.dataElement.name}}</ui-select-match>
-            <ui-select-choices repeat="event in relation.data | filter: $select.search" refresh-delay="0" refresh="relation.searchRelations($select.search)">
+        <ui-select ng-model="ngModel.value" theme="selectize">
+            <ui-select-match placeholder="Select {{relation.dataElement.name | extrapolateDataElement}}">
+                {{$select.selected | extrapolateDataValue:relation.dataElement.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="event as event in relation.data | filter: $select.search" refresh-delay="0"
+                               refresh="relation.searchRelations($select.search)">
                 <span ng-bind-html="event | extrapolateDataValue:relation.dataElement.name | highlight: $select.search"></span>
             </ui-select-choices>
         </ui-select>
-        <!--<input type="text" class="form-control" ng-model="ngModel.value.dataValues[relation.index].value"
-               uib-typeahead="address for address in relation.searchRelations($viewValue)"
-               typeahead-template-url="customTemplate.html"
-               ng-blur="relation.onBlur(ngModel.value.dataValues[relation.index].value)"
-               typeahead-loading="relation.loading" typeahead-no-results="noResults"
-        />-->
-        <div class="input-group-btn">
+        <div ng-if="relation.programs.length > 0" class="input-group-btn">
             <button type="button" class="btn btn-default dropdown-toggle"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span ng-if='relation.feedback.status == "LOADING"' class="glyphicon glyphicon-refresh spinning"></span>
                 <span ng-if='relation.feedback.status != "LOADING"'>Actions<span class="caret"></span></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
-                <li><a></a></li>
+                <li ng-repeat="program in relation.programs"><a ng-click="show(program,ngModel.value)">View
+                    {{program.displayName}} Details</a></li>
             </ul>
         </div>
         <!-- /btn-group -->
