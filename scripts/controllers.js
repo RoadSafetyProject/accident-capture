@@ -83,7 +83,8 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             }, function () {
                 $log.info('Modal dismissed at: ' + new Date());
             });
-        }
+        };
+
         $scope.showEdit = function(event){
             var modalInstance = $uibModal.open({
                 animation: $scope.animationsEnabled,
@@ -107,7 +108,8 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             }, function () {
                 $log.info('Modal dismissed at: ' + new Date());
             });
-        }
+        };
+
         $scope.showAddNew = function(){
             var event = {};
             var modalInstance = $uibModal.open({
@@ -125,10 +127,8 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                 }
             });
 
-            modalInstance.result.then(function (resultItem) {
-                for(var key in item){
-                    item[key] = resultItem[key];
-                }
+            modalInstance.result.then(function (resultEvent) {
+                $scope.tableParams.data.push(resultEvent);
             }, function () {
                 $log.info('Modal dismissed at: ' + new Date());
             });
@@ -154,8 +154,9 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
         iRoadModal.initiateEvent(event,program).then(function(newEvent){
             $scope.event = newEvent;
             $scope.loading = false;
-        })
+        });
         $scope.program = program;
+
         $scope.getDataElementIndex = function(dataElement){
             var index = "";
             event.dataValues.forEach(function(dataValue,i){
@@ -163,6 +164,10 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                     index = i;
                 }
             });
+            if(index == ""){
+                event.dataValues.push({dataElement:dataElement.id,value:""});
+                index = event.dataValues.length - 1;
+            }
             return index;
         };
 

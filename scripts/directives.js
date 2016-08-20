@@ -3,9 +3,20 @@
 /* Directives */
 
 var appDirectives = angular.module('appDirectives', [])
+    .directive('dateFormatter',function(dateFilter,$parse){
+        return{
+            restrict:'EAC',
+            require:'?ngModel',
+            link:function(scope,element,attrs,ngModel,ctrl){
+                ngModel.$parsers.push(function(viewValue){
+                    return dateFilter(viewValue,'yyyy-MM-dd');
+                });
+            }
+        }
+    })
     .directive('elementInput', function () {
 
-        var controller = ['$scope', 'iRoadModal', '$http', function ($scope, iRoadModal, $http) {
+        var controller = ['$scope', 'iRoadModal', '$uibModal','$log', function ($scope, iRoadModal, $uibModal,$log) {
             function getDayClass(data) {
                 var date = data.date,
                     mode = data.mode;
@@ -29,9 +40,33 @@ var appDirectives = angular.module('appDirectives', [])
                 return mode === 'day' && (date.getDay() === 0 || date.getDay() === 6);
             }
             //iRoadModal.getDataElementByName($scope.ngDataElementName).then(function (dataElement) {
+            $scope.show = function(program,event){
+                var modalInstance = $uibModal.open({
+                    animation: $scope.animationsEnabled,
+                    templateUrl: 'views/details.html',
+                    controller: 'DetailController',
+                    size: "sm",
+                    resolve: {
+                        event: function () {
+                            return event;
+                        },
+                        program:function(){
+                            return program;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (resultItem) {
+
+                }, function () {
+                    $log.info('Modal dismissed at: ' + new Date());
+                });
+            }
             $scope.dataElement = $scope.ngProgramStageDataElement.dataElement;
             if ($scope.dataElement.valueType == "DATE") {
-
+                if($scope.ngModel.value != ""){
+                    $scope.ngModel.value = new Date(parseInt($scope.ngModel.value.substr(0,4)),parseInt($scope.ngModel.value.substr(5,2)) - 1,parseInt($scope.ngModel.value.substr(8)))
+                }
                 $scope.inlineOptions = {
                     customClass: getDayClass,
                     minDate: new Date(),
@@ -76,25 +111,11 @@ var appDirectives = angular.module('appDirectives', [])
                 $scope.popup2 = {
                     opened: false
                 };
-
-                var tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                var afterTomorrow = new Date();
-                afterTomorrow.setDate(tomorrow.getDate() + 1);
-                $scope.events = [
-                    {
-                        date: tomorrow,
-                        status: 'full'
-                    },
-                    {
-                        date: afterTomorrow,
-                        status: 'partially'
-                    }
-                ];
             }
             else if ($scope.dataElement.name.startsWith(iRoadModal.refferencePrefix)) {
                 $scope.relation = {
                     loading:true,
+                    programs:[],
                     data:[],
                     searchRelations:function(value){
                         this.feedback = {status:"LOADING"};
@@ -105,31 +126,26 @@ var appDirectives = angular.module('appDirectives', [])
                             self.data = results;
                         })
                     },
-                    setDataElementIndex:function(dataElementName,dataValues){
+                    setDataElement:function(dataElementName){
                         this.feedback = {status:"LOADING"};
                         var self = this;
                         iRoadModal.getRelationship(dataElementName).then(function(dataElement){
                             self.dataElement = dataElement;
-                            dataValues.forEach(function(dataValue,index){
-                                if(dataValue.dataElement == dataElement.id){
-                                    self.index = index;
-                                }
+                            iRoadModal.getProgramByName(dataElementName.replace(iRoadModal.refferencePrefix,"")).then(function(program){
+                                self.programs.push(program);
+                                self.feedback = {};
                             })
-                            self.feedback = {};
                         })
                     }
                 }
-                //console.log();
-                //$scope.relation.setDataElementIndex($scope.dataElement.name,$scope.ngModel.value.dataValues)
+                $scope.relation.setDataElement($scope.dataElement.name)
             }
         }];
         return {
             restrict: 'AEC',
             require: '^form',
             scope: {
-                //actions:actions,
                 ngModel: '=',
-                crudOperation: '=',
                 ngProgramStageDataElement: '='
             },
             controller: controller,

@@ -12,44 +12,51 @@ var appFilters = angular.module('appFilters', [])
 
         function getDataElementId(event, dataElementName) {
             var returnValue = "";
-            dataElements.forEach(function (dataElement) {
-                event.dataValues.forEach(function (dataValue) {
-                    if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName) {
-                        returnValue = event.event + dataValue.dataElement;
-                    }
-                })
-            })
+            if(event){
+                if(event.dataValues){
+                    dataElements.forEach(function (dataElement) {
+                        event.dataValues.forEach(function (dataValue,index) {
+                            if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName) {
+                                returnValue = event.event + dataValue.dataElement;
+                            }
+                        })
+                    })
+                }
+            }
             return returnValue;
         }
 
         function getDataValue(event, dataElementName) {
-            console.log(event);
             var cacheId = getDataElementId(event, dataElementName);
             if (cacheId in cached) {
                 // avoid returning a promise!
                 return cached[cacheId];
             } else {
-                dataElements.forEach(function (dataElement) {
-                    event.dataValues.forEach(function (dataValue) {
-                        if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName && dataElement.displayName.startsWith(iRoadModal.refferencePrefix)) {
-                            var newEvent = dataValue.value;
-                            iRoadModal.getProgramByName(dataElementName.replace(iRoadModal.refferencePrefix, "")).then(function (program) {
-                                program.programStages[0].programStageDataElements.forEach(function (programStageDataElement) {
-                                    if (programStageDataElement.dataElement.code)
-                                        if (programStageDataElement.dataElement.code.toLowerCase() == ("id_" + dataElementName.replace(iRoadModal.refferencePrefix, "").toLowerCase())) {
-                                            newEvent.dataValues.forEach(function (newDataValue) {
-                                                if (newDataValue.dataElement == programStageDataElement.dataElement.id) {
-                                                    cached[event.event + dataValue.dataElement] = newDataValue.value;
+                if(event) {
+                    if (event.dataValues) {
+                        dataElements.forEach(function (dataElement) {
+                            event.dataValues.forEach(function (dataValue) {
+                                if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName && dataElement.displayName.startsWith(iRoadModal.refferencePrefix)) {
+                                    var newEvent = dataValue.value;
+                                    iRoadModal.getProgramByName(dataElementName.replace(iRoadModal.refferencePrefix, "")).then(function (program) {
+                                        program.programStages[0].programStageDataElements.forEach(function (programStageDataElement) {
+                                            if (programStageDataElement.dataElement.code)
+                                                if (programStageDataElement.dataElement.code.toLowerCase() == ("id_" + dataElementName.replace(iRoadModal.refferencePrefix, "").toLowerCase())) {
+                                                    newEvent.dataValues.forEach(function (newDataValue) {
+                                                        if (newDataValue.dataElement == programStageDataElement.dataElement.id) {
+                                                            cached[event.event + dataValue.dataElement] = newDataValue.value;
+                                                        }
+                                                    })
                                                 }
-                                            })
-                                        }
-                                })
+                                        })
+                                    })
+                                } else if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName) {
+                                    cached[event.event + dataValue.dataElement] = dataValue.value;
+                                }
                             })
-                        } else if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName) {
-                            cached[event.event + dataValue.dataElement] = dataValue.value;
-                        }
-                    })
-                })
+                        })
+                    }
+                }
             }
         }
 
