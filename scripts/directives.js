@@ -65,7 +65,12 @@ var appDirectives = angular.module('appDirectives', [])
 
             $scope.dataElement = $scope.ngProgramStageDataElement.dataElement;
             var numericalDataElementValueType = ["NUMBER","INTEGER","INTEGER_POSITIVE","INTEGER_NEGATIVE","INTEGER_ZERO_OR_POSITIVE"];
-            if ($scope.dataElement.valueType == "DATE") {
+            if(numericalDataElementValueType.indexOf($scope.dataElement.valueType) != -1 ){
+                if($scope.ngModel && $scope.ngModel.value != ""){
+                    $scope.ngModel.value = parseInt($scope.ngModel.value);
+                }
+            }
+            else if ($scope.dataElement.valueType == "DATE") {
                 if($scope.ngModel && $scope.ngModel.value != ""){
                     $scope.ngModel.value = new Date(parseInt($scope.ngModel.value.substr(0,4)),parseInt($scope.ngModel.value.substr(5,2)) - 1,parseInt($scope.ngModel.value.substr(8)))
                 }
@@ -141,11 +146,6 @@ var appDirectives = angular.module('appDirectives', [])
                     }
                 }
                 $scope.relation.setDataElement($scope.dataElement.name)
-            }
-            else if(numericalDataElementValueType.indexOf($scope.dataElement.valueType) != -1 ){
-                if($scope.ngModel && $scope.ngModel.value != ""){
-                    $scope.ngModel.value = parseInt($scope.ngModel.value);
-                }
             }
         }];
         return {
