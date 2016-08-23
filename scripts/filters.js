@@ -27,6 +27,7 @@ var appFilters = angular.module('appFilters', [])
         }
 
         function getDataValue(event, dataElementName) {
+            var numericalDataElementValueType = ["NUMBER","INTEGER","INTEGER_POSITIVE","INTEGER_NEGATIVE","INTEGER_ZERO_OR_POSITIVE"];
             var cacheId = getDataElementId(event, dataElementName);
             if (cacheId in cached) {
                 // avoid returning a promise!
@@ -53,7 +54,10 @@ var appFilters = angular.module('appFilters', [])
                                         })
                                     }
                                 } else if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName) {
-                                    cached[event.event + dataValue.dataElement] = dataValue.value;
+                                    if(numericalDataElementValueType.indexOf(dataElement.valueType) != -1){
+                                        console.log(dataValue.value);
+                                    }
+                                    cached[event.event + dataValue.dataElement] = numericalDataElementValueType.indexOf(dataElement.valueType) != -1? parseInt(dataValue.value):dataValue.value;
                                 }
                             })
                         })
