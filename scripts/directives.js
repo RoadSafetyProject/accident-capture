@@ -3,20 +3,115 @@
 /* Directives */
 
 var appDirectives = angular.module('appDirectives', [])
-    .directive('dateFormatter',function(dateFilter,$parse){
-        return{
-            restrict:'EAC',
-            require:'?ngModel',
-            link:function(scope,element,attrs,ngModel,ctrl){
-                ngModel.$parsers.push(function(viewValue){
-                    return dateFilter(viewValue,'yyyy-MM-dd');
+    .directive('dateFormatter', function (dateFilter, $parse) {
+        return {
+            restrict: 'EAC',
+            require: '?ngModel',
+            link: function (scope, element, attrs, ngModel, ctrl) {
+                ngModel.$parsers.push(function (viewValue) {
+                    return dateFilter(viewValue, 'yyyy-MM-dd');
                 });
+            }
+        }
+    })
+    .controller('LocationSelectorController', function (iRoadModal, $scope, $uibModalInstance, program, coordinate, MapService) {
+        var latitude = -6.3690;
+        var longitude = 34.8888;
+        if (coordinate) {
+            latitude = coordinate.latitude;
+            longitude = coordinate.longitude;
+        }
+        angular.extend($scope, {
+            center: {
+                lat: latitude,
+                lng: longitude,
+                zoom: 5
+            }, events: {
+                map: {
+                    enable: ['zoomstart', 'drag', 'click', 'mousemove'],
+                    logic: 'emit'
+                }
+            }
+        });
+        $scope.markers = {
+            m1: {
+                lat: latitude,
+                lng: longitude,
+                message: "I'm a static marker",
+                icon: {},
+                draggable: true
+            }
+        }
+        $scope.$on('leafletDirectiveMarker.dragend', function (event, marker) {
+            console.log(marker);
+            $scope.markers.m1.lat = marker.model.lat;
+            $scope.markers.m1.lng = marker.model.lng;
+            MapService.getReverseCoding($scope.markers.m1.lat, $scope.markers.m1.lng).then(function (results) {
+                $scope.address = results;
+            })
+        });
+        $scope.setLocation = function () {
+            var coordinate = {
+                latitude: $scope.markers.m1.lat,
+                longitude: $scope.markers.m1.lng
+            };
+            $uibModalInstance.close(coordinate);
+        };
+
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+    })
+    .directive('locationSelector', function () {
+        return {
+            restrict: 'AEC',
+            require: '^form',
+            scope: {
+                ngLocationModel: '='
+            },
+            template: '<div class="input-group"><input ng-model="address" type="text" class="form-control" aria-label="..."><div class="input-group-btn"><button type="button" class="btn btn-default dropdown-toggle" ng-click="chooseLocation()" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Choose Location</button></div><!-- /btn-group --> </div>',
+            controller: function ($scope, $uibModal, MapService) {
+                console.log($scope);
+                console.log($scope['ngLocationModel']);
+                $scope.$watch('ngLocationModel',function(){
+                    if($scope.ngLocationModel){
+                        MapService.getReverseCoding($scope.ngLocationModel.latitude, $scope.ngLocationModel.longitude).then(function (results) {
+                            $scope.address = results[0].formatted_address;
+                        })
+                    }
+                })
+                if ($scope.ngModel) {
+
+                }
+                $scope.chooseLocation = function () {
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        templateUrl: 'views/directives/location-selector.html',
+                        controller: 'LocationSelectorController',
+                        size: "lg",
+                        resolve: {
+                            coordinate: function () {
+                                return $scope.ngModel;
+                            },
+                            program: function () {
+                                return $scope.program;
+                            }
+                        }
+                    });
+                    modalInstance.result.then(function (coordinate) {
+                        $scope.ngModel = coordinate;
+                        MapService.getReverseCoding(coordinate.latitude, coordinate.longitude).then(function (results) {
+                            $scope.address = results[0].formatted_address;
+                        })
+                    }, function () {
+                    });
+                }
             }
         }
     })
     .directive('elementInput', function () {
 
-        var controller = ['$scope', 'iRoadModal', '$uibModal','$log', function ($scope, iRoadModal, $uibModal,$log) {
+        var controller = ['$scope', 'iRoadModal', '$uibModal', '$log', function ($scope, iRoadModal, $uibModal, $log) {
             function getDayClass(data) {
                 var date = data.date,
                     mode = data.mode;
@@ -39,8 +134,9 @@ var appDirectives = angular.module('appDirectives', [])
                     mode = data.mode;
                 return mode === 'day' && (date.getDay() === 0 || date.getDay() === 6);
             }
+
             //iRoadModal.getDataElementByName($scope.ngDataElementName).then(function (dataElement) {
-            $scope.show = function(program,event){
+            $scope.show = function (program, event) {
                 var modalInstance = $uibModal.open({
                     animation: $scope.animationsEnabled,
                     templateUrl: 'views/details.html',
@@ -50,7 +146,7 @@ var appDirectives = angular.module('appDirectives', [])
                         event: function () {
                             return event;
                         },
-                        program:function(){
+                        program: function () {
                             return program;
                         }
                     }
@@ -73,6 +169,7 @@ var appDirectives = angular.module('appDirectives', [])
             else if ($scope.dataElement.valueType == "DATE") {
                 if($scope.ngModel && $scope.ngModel.value != ""){
                     $scope.ngModel.value = new Date(parseInt($scope.ngModel.value.substr(0,4)),parseInt($scope.ngModel.value.substr(5,2)) - 1,parseInt($scope.ngModel.value.substr(8)))
+
                 }
                 $scope.inlineOptions = {
                     customClass: getDayClass,
@@ -121,24 +218,30 @@ var appDirectives = angular.module('appDirectives', [])
             }
             else if ($scope.dataElement.name.startsWith(iRoadModal.refferencePrefix)) {
                 $scope.relation = {
-                    loading:true,
-                    programs:[],
-                    data:[],
-                    searchRelations:function(value){
-                        this.feedback = {status:"LOADING"};
+                    loading: true,
+                    programs: [],
+                    data: [],
+                    searchRelations: function (value) {
+                        this.feedback = {status: "LOADING"};
                         var self = this;
-                        return iRoadModal.get($scope.dataElement.name.replace(iRoadModal.refferencePrefix,""),
-                            {filter:{left:this.dataElement.id,operator:"LIKE",right:value}}).then(function(results){
+                        return iRoadModal.get($scope.dataElement.name.replace(iRoadModal.refferencePrefix, ""),
+                            {
+                                filter: {
+                                    left: this.dataElement.id,
+                                    operator: "LIKE",
+                                    right: value
+                                }
+                            }).then(function (results) {
                             self.feedback = {};
                             self.data = results;
                         })
                     },
-                    setDataElement:function(dataElementName){
-                        this.feedback = {status:"LOADING"};
+                    setDataElement: function (dataElementName) {
+                        this.feedback = {status: "LOADING"};
                         var self = this;
-                        iRoadModal.getRelationship(dataElementName).then(function(dataElement){
+                        iRoadModal.getRelationship(dataElementName).then(function (dataElement) {
                             self.dataElement = dataElement;
-                            iRoadModal.getProgramByName(dataElementName.replace(iRoadModal.refferencePrefix,"")).then(function(program){
+                            iRoadModal.getProgramByName(dataElementName.replace(iRoadModal.refferencePrefix, "")).then(function (program) {
                                 self.programs.push(program);
                                 self.feedback = {};
                             })

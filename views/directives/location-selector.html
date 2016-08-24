@@ -1,0 +1,12 @@
+<div class="modal-header">
+    <h3 class="modal-title">Select Location</h3>
+</div>
+<div class="modal-body">
+    Click a location in the map to select.
+    <leaflet markers="markers" lf-center="center" height="240px" class="col-sm-12"></leaflet>
+    <span ng-repeat="a in address">{{a.formatted_address}}</span>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="submit" ng-click="setLocation()">Set Location</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>

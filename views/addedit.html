@@ -11,7 +11,12 @@
                                    ng-model="event.dataValues[getDataElementIndex(programStageDataElement.dataElement)]"></element-input>
                 </td>
             </tr>
-
+            <tr ng-if="program.programStages[0].captureCoordinates">
+                <td>Coordinates</td>
+                <td>
+                    <location-selector ng-location-model="event.coordinate"></location-selector>
+                </td>
+            </tr>
         </table>
         <table ng-if="data.basicInformationVisibility && !loading" class="table">
             <tr>
@@ -24,10 +29,12 @@
             <tr>
                 <td>Number of Witness</td>
                 <td>
-                    <input type="number" class="form-control" ng-model="data.accidentBasicInformation['numberOfWitness']"
+                    <input type="number" class="form-control"
+                           ng-model="data.accidentBasicInformation['numberOfWitness']"
                            ng-required="true">
                 </td>
             </tr>
+
         </table>
     <div ng-if="loading" class="loader"></div>
 </div>

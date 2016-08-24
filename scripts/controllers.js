@@ -223,15 +223,15 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                     if(dataValue.dataElement == dataElement.id){
                         index = i;
                     }
-                })
+                });
                 return index;
             }
         });
         $scope.program = program;
         $scope.data = otherData;
-
         $scope.save = function () {
             $scope.loading = true;
+            console.log($scope.event);
             iRoadModal.save($scope.event,$scope.program).then(function(result){
                 $scope.loading = false;
                 $uibModalInstance.close({result:result,data:$scope.data });
