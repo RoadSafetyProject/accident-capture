@@ -54,10 +54,7 @@ var appFilters = angular.module('appFilters', [])
                                         })
                                     }
                                 } else if (dataValue.dataElement == dataElement.id && dataElementName == dataElement.displayName) {
-                                    if(numericalDataElementValueType.indexOf(dataElement.valueType) != -1){
-                                        console.log(dataValue.value);
-                                    }
-                                    cached[event.event + dataValue.dataElement] = numericalDataElementValueType.indexOf(dataElement.valueType) != -1? parseInt(dataValue.value):dataValue.value;
+                                    cached[event.event + dataValue.dataElement] = (numericalDataElementValueType.indexOf(dataElement.valueType) != -1) && (dataValue.value !="") ? parseInt(dataValue.value):dataValue.value;
                                 }
                             })
                         })
