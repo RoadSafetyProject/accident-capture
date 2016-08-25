@@ -166,6 +166,23 @@ var appDirectives = angular.module('appDirectives', [])
                     $scope.ngModel.value = parseInt($scope.ngModel.value);
                 }
             }
+            else if ($scope.dataElement.valueType == "FILE_RESOURCE") {
+                $scope.readURL = function() {
+                    console.log(arguments);
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            $('#blah')
+                                .attr('src', e.target.result)
+                                .width(150)
+                                .height(200);
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+            }
             else if ($scope.dataElement.valueType == "DATE") {
                 if($scope.ngModel && $scope.ngModel.value != ""){
                     $scope.ngModel.value = new Date(parseInt($scope.ngModel.value.substr(0,4)),parseInt($scope.ngModel.value.substr(5,2)) - 1,parseInt($scope.ngModel.value.substr(8)))
@@ -261,4 +278,67 @@ var appDirectives = angular.module('appDirectives', [])
             controller: controller,
             templateUrl: 'views/directives/elementInput.html'
         };
+    })
+    .controller('CameraController', function ($scope,$uibModalInstance) {
+
+        $scope.setPhoto = function () {
+            $uibModalInstance.close($scope.picture);
+        };
+
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
+    })
+    .directive("fileSelect",function() {
+        return {
+            scope: {
+                ngModel: '=',
+                event: '=',
+                dhisDataElement: '='
+            },
+            controller:function($scope,$uibModal,FileReader,FileService,iRoadModal){
+                console.log($scope)
+                $scope.imageSrc = iRoadModal.getFileUrl($scope.event,$scope.dhisDataElement);
+                $scope.getFile = function () {
+                    $scope.progress = 0;
+                    console.log($scope.file);
+                    FileService.upload($scope.file).then(function(response){
+                        alert("Should Be first");
+                        console.log(response);
+                    })
+                    FileReader.readAsDataUrl($scope.file, $scope)
+                        .then(function(result) {
+                            $scope.imageSrc = result;
+                        });
+                };
+
+                $scope.$on("fileProgress", function(e, progress) {
+                    $scope.progress = progress.loaded / progress.total;
+                });
+                $scope.capturePhoto = function () {
+                    var modalInstance = $uibModal.open({
+                        animation: true,
+                        templateUrl: 'views/directives/camera.html',
+                        controller: 'CameraController',
+                        size: "lg"
+                    });
+                    modalInstance.result.then(function (photo) {
+                        $scope.imageSrc = photo;
+                    }, function () {
+                    });
+                }
+            },
+            templateUrl:"views/directives/fileInput.html"
+        }
+    })
+    .directive("fileInput",function() {
+        return {
+            link: function ($scope, el) {
+                el.bind("change",function (e) {
+                    console.log(arguments);
+                    $scope.file = (e.srcElement || e.target).files[0];
+                    $scope.getFile();
+                });
+            }
+        }
     })
