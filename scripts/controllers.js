@@ -221,7 +221,7 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             $uibModalInstance.dismiss('cancel');
         };
     })
-    .controller('EditController', function (NgTableParams,$uibModal,iRoadModal, $scope,$uibModalInstance,program,event,otherData) {
+    .controller('EditController', function (NgTableParams,$uibModal,$log,iRoadModal, $scope,$uibModalInstance,program,event,otherData) {
         $scope.data = {};
         $scope.data.otherData = otherData;
         iRoadModal.initiateEvent(event,program).then(function(newEvent){
@@ -248,7 +248,7 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             });
         };
 
-        $scope.addMore = function(){
+        $scope.addMoreRelationData = function(){
             iRoadModal.getRelationshipDataElementByProgram(iRoadModal.refferencePrefix + otherData.programName,program).then(function(dataElement){
                 var relationEvent = {};
                 $scope.data.otherData.mode = "addMoreRelation";
@@ -281,16 +281,13 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                     }
                 }, function () {
                     $log.info('Relation Modal dismissed at: ' + new Date());
+                    $scope.data.otherData.mode = "addRelation";
                 });
             });
         };
 
-        $scope.viewAll = function(){
-          console.log('View all');
-            console.log($scope.data);
-        };
-
         $scope.cancel = function () {
+            $scope.data.otherData.mode = "addRelation";
             iRoadModal.setRelations($scope.event).then(function(){
                 $uibModalInstance.close({});
             })
