@@ -23,8 +23,10 @@
         </table>
     <div ng-if="loading" class="loader"></div>
 </div>
-<div class="modal-footer">
-    <button class="btn btn-primary" type="submit" >Save</button>
-    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
-</div>
+    <div class="modal-footer">
+        <button ng-if="data.otherData.mode == 'addRelation'" class="btn btn-primary" type="button" ng-click="addMore()">Add More</button>
+        <button ng-if="data.otherData.eventList.length > 0 && data.otherData.mode == 'addRelation'" class="btn btn-primary" type="button" ng-click="viewAll()">View All</button>
+        <button class="btn btn-primary" type="submit" >Save</button>
+        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+    </div>
 </form>
