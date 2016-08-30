@@ -43,7 +43,6 @@ var appDirectives = angular.module('appDirectives', [])
             }
         }
         $scope.$on('leafletDirectiveMarker.dragend', function (event, marker) {
-            console.log(marker);
             $scope.markers.m1.lat = marker.model.lat;
             $scope.markers.m1.lng = marker.model.lng;
             MapService.getReverseCoding($scope.markers.m1.lat, $scope.markers.m1.lng).then(function (results) {
@@ -57,7 +56,6 @@ var appDirectives = angular.module('appDirectives', [])
             };
             $uibModalInstance.close(coordinate);
         };
-
         $scope.cancel = function () {
             $uibModalInstance.dismiss('cancel');
         };
@@ -71,18 +69,13 @@ var appDirectives = angular.module('appDirectives', [])
             },
             template: '<div class="input-group"><input ng-model="address" type="text" class="form-control" aria-label="..."><div class="input-group-btn"><button type="button" class="btn btn-default dropdown-toggle" ng-click="chooseLocation()" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Choose Location</button></div><!-- /btn-group --> </div>',
             controller: function ($scope, $uibModal, MapService) {
-                console.log($scope);
-                console.log($scope['ngLocationModel']);
                 $scope.$watch('ngLocationModel',function(){
-                    if($scope.ngLocationModel){
+                    if($scope.ngLocationModel && $scope.ngLocationModel.latitude){
                         MapService.getReverseCoding($scope.ngLocationModel.latitude, $scope.ngLocationModel.longitude).then(function (results) {
                             $scope.address = results[0].formatted_address;
                         })
                     }
-                })
-                if ($scope.ngModel) {
-
-                }
+                });
                 $scope.chooseLocation = function () {
                     var modalInstance = $uibModal.open({
                         animation: true,
@@ -91,7 +84,7 @@ var appDirectives = angular.module('appDirectives', [])
                         size: "lg",
                         resolve: {
                             coordinate: function () {
-                                return $scope.ngModel;
+                                return $scope.ngLocationModel;
                             },
                             program: function () {
                                 return $scope.program;
@@ -99,7 +92,7 @@ var appDirectives = angular.module('appDirectives', [])
                         }
                     });
                     modalInstance.result.then(function (coordinate) {
-                        $scope.ngModel = coordinate;
+                        $scope.ngLocationModel = coordinate;
                         MapService.getReverseCoding(coordinate.latitude, coordinate.longitude).then(function (results) {
                             $scope.address = results[0].formatted_address;
                         })
