@@ -6,9 +6,18 @@
         <tr ng-if="!loading" ng-repeat="event in $data">
             <td ng-repeat="col in $columns">
                 {{event | extrapolateDataValue:col.title()}}
+                <!--<div ng-if="col.title() == 'Action'" class="dropdown">-->
+                    <!--<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">-->
+                        <!--Actions-->
+                        <!--<span class="caret"></span>-->
+                    <!--</button>-->
+                    <!--<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">-->
+                        <!--<li><a ng-click="edit(event)">View Details</a></li>-->
+                        <!--<li><a ng-click="delete(event)">Edit</a></li>-->
+                    <!--</ul>-->
+                <!--</div>-->
             </td>
         </tr>
-
     </table>
     <table class="table" ng-if="loading">
         <tr ><td colspan="100%" align="center"><div class="loader"></div></td></tr>
