@@ -1,0 +1,5 @@
+<img ng-if="data.contentType == 'image/jpeg'" src="{{fileUrl}}"  class="col-sm-12"/>
+<video ng-if="data.contentType == 'video/mp4'"  class="col-sm-12" height="240" controls>
+    <source src="{{fileUrl}}" type="video/mp4">
+    Your browser does not support the video tag.
+</video>

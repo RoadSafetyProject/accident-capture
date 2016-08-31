@@ -4,8 +4,17 @@
 <div class="modal-body">
     <table class="table">
         <tr ng-if="!loading" ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
-            <td>{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
-            <td>{{event | extrapolateDataValue:programStageDataElement.dataElement.name}}</td>
+            <td ng-if="programStageDataElement.dataElement.valueType != 'FILE_RESOURCE'">{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
+            <td ng-if="programStageDataElement.dataElement.valueType != 'FILE_RESOURCE'">
+                <div>{{event | extrapolateDataValue:programStageDataElement.dataElement.name}}</div>
+
+            </td>
+            <td ng-if="programStageDataElement.dataElement.valueType == 'FILE_RESOURCE'" colspan="2" align="center">
+                <div>
+                    {{programStageDataElement.dataElement.name}}<br/><br/>
+                    <file-view event="event" stage-data-element="programStageDataElement.dataElement"></file-view>
+                </div>
+            </td>
         </tr>
         <tr ng-if="loading"><td colspan="3" align="center"><div class="loader"></div></td></tr>
     </table>

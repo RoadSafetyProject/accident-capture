@@ -335,3 +335,23 @@ var appDirectives = angular.module('appDirectives', [])
             }
         }
     })
+    .directive("fileView",function() {
+        return {
+            scope: {
+                event: '=',
+                stageDataElement: '='
+            },
+            controller:function($scope,iRoadModal,$http){
+                $scope.fileUrl = iRoadModal.getFileUrl($scope.event,$scope.stageDataElement);
+
+                $scope.event.dataValues.forEach(function(dataValue){
+                    if(dataValue.dataElement == $scope.stageDataElement.id){
+                        $http.get("/" + dhis2.settings.baseUrl + "/api/fileResources/"+dataValue.value+".json").then(function(results){
+                            $scope.data = results.data;
+                        })
+                    }
+                })
+            },
+            templateUrl:"views/directives/fileView.html"
+        }
+    })

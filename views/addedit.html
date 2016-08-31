@@ -34,9 +34,14 @@
     <div ng-if="loading" class="loader"></div>
 </div>
     <div class="modal-footer">
-        <button ng-if ="data.otherData.eventList.length > 0"  type="button" ng-click="viewSavedRelationData()" class="btn btn-primary">View Added {{program.displayName}}</button>
+
+        <button ng-if="data.otherData.mode == 'edit'" class="btn btn-primary" type="button" >view to edit</button>
+
+
+
+        <button ng-if ="data.otherData.eventList.length > 0 && data.otherData.mode == 'addRelation'"  type="button" ng-click="viewSavedRelationData()" class="btn btn-primary">View Added {{program.displayName}}</button>
         <button ng-if="data.otherData.mode == 'addRelation'" class="btn btn-primary" type="button" ng-click="addMoreRelationData()">Add More {{program.displayName}}</button>
-        <button class="btn btn-primary" type="submit" >Save & exit</button>
+        <button class="btn btn-primary" type="submit" >Save </button>
         <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
     </div>
 </form>
