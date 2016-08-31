@@ -81,7 +81,7 @@ var appDirectives = angular.module('appDirectives', [])
                         animation: true,
                         templateUrl: 'views/directives/location-selector.html',
                         controller: 'LocationSelectorController',
-                        size: "lg",
+                        size: "sm",
                         resolve: {
                             coordinate: function () {
                                 return $scope.ngLocationModel;
@@ -313,7 +313,7 @@ var appDirectives = angular.module('appDirectives', [])
                         animation: true,
                         templateUrl: 'views/directives/camera.html',
                         controller: 'CameraController',
-                        size: "lg"
+                        size: "sm"
                     });
                     modalInstance.result.then(function (photo) {
                         $scope.imageSrc = photo;
