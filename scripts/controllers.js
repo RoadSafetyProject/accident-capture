@@ -333,13 +333,10 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
         }
 
         $scope.edit = function(event){
-
             event.dataValues.forEach(function(dataValue){
-                console.log(dataValue.value);
                 if(dataValue.value.event){
                     dataValue.value = dataValue.value.event;
                 }
-                console.log(dataValue.value);
             });
 
             var modalInstance = $uibModal.open({
@@ -382,6 +379,7 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
     })
     .controller('editRelationController',function(NgTableParams,iRoadModal, $scope,$uibModalInstance,program,event){
         $scope.loading = true;
+        $scope.program = program;
 
         iRoadModal.initiateEvent(event,program).then(function(newEvent){
             $scope.event = newEvent;
