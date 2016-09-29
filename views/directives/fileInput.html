@@ -1,0 +1,16 @@
+<div class="">
+    <img ng-src="{{imageSrc}}" class="img-thumbnail col-sm-12" style="height:200px"/>
+</div>
+<div>
+
+</div>
+<div class="btn-group btn-group-justified">
+
+    <label class="btn btn-default btn-file">
+        Browse <input file-input type="file" style="display: none;" ng-model="ngModel" accept="image/gif, image/jpeg, image/png" ng-change="readURL()">
+    </label>
+    <label class="btn btn-default" ng-click="capturePhoto()">
+
+        Capture
+    </label>
+</div>

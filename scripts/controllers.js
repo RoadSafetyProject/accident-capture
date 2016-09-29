@@ -8,14 +8,9 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
     .controller('MainController', function (NgTableParams,iRoadModal, $scope,$uibModal,$log) {
         $scope.loading = true;
         $scope.tableParams = new NgTableParams();
-        $scope.params ={pageSize:20};
-
-        $scope.data = {
-            accidentBasicInformation : {},
-            basicInformationVisibility : false
-        };
-
+        $scope.params ={pageSize:4};
         $scope.programName = "Accident";
+        $scope.currentAccidentEvent = {};
 
         /**
          * createColumns
@@ -79,7 +74,7 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                 }
             });
 
-            modalInstance.result.then(function (resultItem) {
+            modalInstance.result.then(function (event) {
                 iRoadModal.setRelations(event).then(function(){
 
                 });
@@ -92,8 +87,6 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
         };
 
         $scope.showEdit = function(event){
-            $scope.data.basicInformationVisibility = false;
-            $scope.data.accidentBasicInformation = {};
             var modalInstance = $uibModal.open({
                 animation: $scope.animationsEnabled,
                 templateUrl: 'views/addedit.html',
@@ -106,15 +99,16 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                     program:function(){
                         return $scope.program;
                     },
-                    otherData :function(){
-                        return $scope.data
+                    otherData : function(){
+                        return {
+                            mode : 'edit'
+                        }
                     }
+
                 }
             });
 
-            modalInstance.result.then(function (response) {
-                var resultEvent = response.result;
-                console.log(response);
+            modalInstance.result.then(function (resultEvent) {
                 $scope.tableParams.data.forEach(function(event){
                     if(event.event == resultEvent.event){
                         Object.keys(event).forEach(function(key){
@@ -132,9 +126,8 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             });
         };
         $scope.showAddNew = function(){
+            $scope.currentAccidentEvent = {};
             var event = {};
-            $scope.data.basicInformationVisibility = true;
-            $scope.data.accidentBasicInformation = {};
             var modalInstance = $uibModal.open({
                 animation: $scope.animationsEnabled,
                 templateUrl: 'views/addedit.html',
@@ -147,19 +140,20 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
                     program:function(){
                         return $scope.program;
                     },
-                    otherData :function(){
-                        return $scope.data
+                    otherData : function(){
+                        return {
+                            mode : 'add',
+                            eventId : "",
+                            programName : $scope.programName
+                        }
                     }
                 }
             });
-
-            modalInstance.result.then(function (response) {
-                var resultEvent = response.result;
-                $scope.data = response.data;
-                $scope.data.basicInformationVisibility = false;
+            modalInstance.result.then(function (resultEvent) {
                 if(resultEvent.event){
+                    $scope.currentAccidentEvent = resultEvent;
                     $scope.tableParams.data.push(resultEvent);
-                    console.log($scope.data.accidentBasicInformation);
+                    $scope.addRelationData('Accident Vehicle',true);
                 }
             }, function () {
 
@@ -167,34 +161,49 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
         };
 
 
-        $scope.addRelationData = function(relationName,event){
-            $scope.relationProgram = null;
+        $scope.addRelationData = function (relationName,shouldAllowAddMore){
             iRoadModal.getProgramByName(relationName).then(function(program){
-                program.displayName = $scope.program.displayName + " - " + relationName;
-                $scope.relationProgram = program;
                 iRoadModal.getRelationshipDataElementByProgram(iRoadModal.refferencePrefix + $scope.programName,program).then(function(dataElement){
                     var relationEvent = {};
-                    iRoadModal.initiateEvent(relationEvent,$scope.relationProgram).then(function(newEvent){
-                        newEvent.dataValues.forEach(function(dataValue){
-                            if(dataValue.dataElement == dataElement.id){
-                                dataValue.value = event.event;
+                    relationEvent.dataValues = [];
+                    relationEvent.dataValues.push({
+                        dataElement :dataElement.id,
+                        value : $scope.currentAccidentEvent.event
+                    });
+                    var modalInstance = $uibModal.open({
+                        animation: $scope.animationsEnabled,
+                        templateUrl: 'views/addedit.html',
+                        controller: 'EditController',
+                        size: "lg",
+                        resolve: {
+                            event: function () {
+                                return relationEvent;
+                            },
+                            program:function(){
+                                return program;
+                            },
+                            otherData : function(){
+                                return {
+                                    mode : 'addRelation',
+                                    eventId : $scope.currentAccidentEvent.event,
+                                    programName : $scope.programName,
+                                    eventList : []
+                                }
                             }
-                        });
-                        console.log(newEvent);
+                        }
+                    });
+                    modalInstance.result.then(function (resultEvent) {
+                        if(shouldAllowAddMore){
+                            $scope.addRelationData("Accident Witness",false);
+                        }else{
+                            $log.info('Relation Modal dismissed at: ' + new Date());
+                        }
+                    }, function () {
+                        $log.info('Relation Modal dismissed at: ' + new Date());
                     });
                 });
-
             });
         };
-
-        $scope.viewRelationData = function(relationName,event){
-            console.log(relationName);
-            console.log(event);
-        };
-
-        $scope.showOnProgressLink = function(title){
-            $log.info(title + " on progress");
-        }
 
     })
     .controller('DetailController', function (iRoadModal, $scope,$uibModalInstance,program,event) {
@@ -202,7 +211,7 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
         iRoadModal.getRelations(event).then(function(newEvent){
             $scope.event = newEvent;
             $scope.loading = false;
-        })
+        });
         $scope.program = program;
         $scope.ok = function () {
             $uibModalInstance.close({});
@@ -212,8 +221,9 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             $uibModalInstance.dismiss('cancel');
         };
     })
-    .controller('EditController', function (NgTableParams,iRoadModal, $scope,$uibModalInstance,program,event,otherData) {
-        console.log('otherData :: ',otherData);
+    .controller('EditController', function (NgTableParams,$uibModal,$log,iRoadModal, $scope,$uibModalInstance,program,event,otherData) {
+        $scope.data = {};
+        $scope.data.otherData = otherData;
         iRoadModal.initiateEvent(event,program).then(function(newEvent){
             $scope.event = newEvent;
             $scope.loading = false;
@@ -228,21 +238,58 @@ var appControllers = angular.module('appControllers', ['iroad-relation-modal'])
             }
         });
         $scope.program = program;
-        $scope.data = otherData;
         $scope.save = function () {
             $scope.loading = true;
-            console.log($scope.event);
             iRoadModal.save($scope.event,$scope.program).then(function(result){
                 $scope.loading = false;
-                $uibModalInstance.close({result:result,data:$scope.data });
+                $uibModalInstance.close(result);
             },function(error){
                 $scope.loading = false;
             });
         };
 
+        $scope.addMoreRelationData = function(){
+            iRoadModal.getRelationshipDataElementByProgram(iRoadModal.refferencePrefix + otherData.programName,program).then(function(dataElement){
+                var relationEvent = {};
+                $scope.data.otherData.mode = "addMoreRelation";
+                relationEvent.dataValues = [];
+                relationEvent.dataValues.push({
+                    dataElement :dataElement.id,
+                    value : $scope.data.otherData.eventId
+                });
+                var modalInstance = $uibModal.open({
+                    animation: $scope.animationsEnabled,
+                    templateUrl: 'views/addedit.html',
+                    controller: 'EditController',
+                    size: "lg",
+                    resolve: {
+                        event: function () {
+                            return relationEvent;
+                        },
+                        program:function(){
+                            return program;
+                        },
+                        otherData : function(){
+                            return $scope.data.otherData;
+                        }
+                    }
+                });
+                modalInstance.result.then(function (resultEvent) {
+                    if(resultEvent.event){
+                        $scope.data.otherData.eventList.push(resultEvent);
+                        $scope.data.otherData.mode = "addRelation";
+                    }
+                }, function () {
+                    $log.info('Relation Modal dismissed at: ' + new Date());
+                    $scope.data.otherData.mode = "addRelation";
+                });
+            });
+        };
+
         $scope.cancel = function () {
+            $scope.data.otherData.mode = "addRelation";
             iRoadModal.setRelations($scope.event).then(function(){
-                $uibModalInstance.close({result:{},data:$scope.data });
+                $uibModalInstance.close({});
             })
         };
     });

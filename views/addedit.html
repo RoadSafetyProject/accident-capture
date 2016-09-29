@@ -1,45 +1,41 @@
 <div class="modal-header">
     <h3 class="modal-title">{{program.displayName}}</h3>
 </div>
+
+<div ng-if="data.otherData.eventList.length > 0 && data.otherData.mode == 'addRelation'" style="padding: 1%;">
+
+    <uib-accordion close-others="oneAtATime">
+        <div uib-accordion-group class="panel-default" heading="{{program.displayName}} - {{$index + 1}}" ng-repeat="event in data.otherData.eventList">
+            {{event}}
+        </div>
+    </uib-accordion>
+</div>
+
 <form ng-submit="save()">
 <div class="modal-body">
         <table ng-if="!loading" class="table">
-            <tr ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
+            <tr ng-if="!programStageDataElement.allowProvidedElsewhere" ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
                 <td>{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
                 <td>
+                    <div ng-if="(programStageDataElement.dataElement.valueType == 'FILE_RESOURCE')"
+                         class="form-group">
+                        <file-select ng-model="ngModel.value" event="event" dhis-data-element="programStageDataElement.dataElement"></file-select>
+                    </div>
                     <element-input ng-program-stage-data-element="programStageDataElement"
                                    ng-model="event.dataValues[getDataElementIndex(programStageDataElement.dataElement)]"></element-input>
                 </td>
             </tr>
             <tr ng-if="program.programStages[0].captureCoordinates">
-                <td>Coordinates</td>
-                <td>
-                    <location-selector ng-location-model="event.coordinate"></location-selector>
+                <td>Coordinates</td><td>
+                <location-selector ng-location-model="event.coordinate"></location-selector>
                 </td>
             </tr>
-        </table>
-        <table ng-if="data.basicInformationVisibility && !loading" class="table">
-            <tr>
-                <td>Number of Vehicle</td>
-                <td>
-                    <input type="number" class="form-control" ng-model="data.accidentBasicInformation['numberOfVehicle']"
-                           ng-required="true">
-                </td>
-            </tr>
-            <tr>
-                <td>Number of Witness</td>
-                <td>
-                    <input type="number" class="form-control"
-                           ng-model="data.accidentBasicInformation['numberOfWitness']"
-                           ng-required="true">
-                </td>
-            </tr>
-
         </table>
     <div ng-if="loading" class="loader"></div>
 </div>
-<div class="modal-footer">
-    <button class="btn btn-primary" type="submit" >Save</button>
-    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
-</div>
+    <div class="modal-footer">
+        <button ng-if="data.otherData.mode == 'addRelation'" class="btn btn-primary" type="button" ng-click="addMoreRelationData()">Add More</button>
+        <button class="btn btn-primary" type="submit" >Save</button>
+        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+    </div>
 </form>
