@@ -8,6 +8,19 @@
     margin-top: 20px;    
 }
 
+.modal-lg{
+    width:100%;
+}
+
+.modal-md{
+    width:70%;
+}
+
+.modal-sm{
+    width:40%;
+}
+
+
 table 
 {
     font-size: 13px;

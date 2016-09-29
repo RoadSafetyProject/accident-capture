@@ -3,7 +3,7 @@
 </div>
 
 <form ng-submit="save()">
-<div class="modal-body">
+    <div class="modal-body">
         <table ng-if="!loading" class="table">
             <tr ng-if="!programStageDataElement.allowProvidedElsewhere" ng-repeat="programStageDataElement in program.programStages[0].programStageDataElements | orderBy:'sortOrder'">
                 <td>{{programStageDataElement.dataElement.name | extrapolateDataElement}}</td>
@@ -19,11 +19,11 @@
             <tr ng-if="program.programStages[0].captureCoordinates">
                 <td>Coordinates</td><td>
                 <location-selector ng-location-model="event.coordinate"></location-selector>
-                </td>
+            </td>
             </tr>
         </table>
-    <div ng-if="loading" class="loader"></div>
-</div>
+        <div ng-if="loading" class="loader"></div>
+    </div>
     <div class="modal-footer">
 
         <button ng-if="data.otherData.mode == 'edit'" class="btn btn-primary" type="button" ng-click="editRelationData('Accident Vehicle')">Edit Vehicle(s)</button>

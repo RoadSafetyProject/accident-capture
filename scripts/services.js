@@ -11,7 +11,7 @@ var appServices = angular.module('appServices', ['ngResource'])
                 var deffered = $q.defer();
                 $http.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude).then(function (results) {
                     deffered.resolve(results.data.results);
-                })
+                });
                 return deffered.promise;
             }
         }
